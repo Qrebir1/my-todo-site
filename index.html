@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой список дел</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ==================== */
+        /* ОСНОВНЫЕ СТИЛИ */
+        /* ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeInBody 0.8s ease-out forwards;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            animation: slideUpContainer 0.8s ease-out 0.3s forwards;
+        }
+        
+        /* ==================== */
+        /* АНИМАЦИИ */
+        /* ==================== */
+        @keyframes fadeInBody {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUpContainer {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes avatarPulse {
+            0% { box-shadow: 0 0 0 0 rgba(71, 118, 230, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(71, 118, 230, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(71, 118, 230, 0); }
+        }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* ==================== */
+        /* ШАПКА САЙТА */
+        /* ==================== */
+        header {
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                transparent 100%
+            );
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s ease-out 0.5s forwards;
+        }
+        
+        h1 i {
+            font-size: 1.8rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s ease-out 0.6s forwards;
+        }
+        
+        /* ==================== */
+        /* КНОПКА СОЗДАТЕЛЯ */
+        /* ==================== */
+        .creator-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            z-index: 10;
+            opacity: 0;
+            transform: translateX(20px);
+            animation: fadeInRight 0.6s ease-out 0.8s forwards;
+        }
+        
+        .creator-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* ==================== */
+        /* ФОРМА ДОБАВЛЕНИЯ ЗАДАЧ */
+        /* ==================== */
+        .input-section {
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s ease-out 0.7s forwards;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #taskInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            transform: scale(0.95);
+        }
+        
+        #taskInput:focus {
+            outline: none;
+            border-color: #4776E6;
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+            transform: scale(1);
+        }
+        
+        #addBtn {
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            transform: scale(0.95);
+            white-space: nowrap;
+        }
+        
+        #addBtn:hover {
+            transform: translateY(-2px) scale(1);
+            box-shadow: 0 5px 15px rgba(71, 118, 230, 0.4);
+        }
+        
+        /* ==================== */
+        /* ЗАГРУЗКА ФОТО */
+        /* ==================== */
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .photo-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background-color: #f5f5f5;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .photo-label:hover {
+            background-color: #e9e9e9;
+            transform: translateY(-2px);
+        }
+        
+        #taskPhoto {
+            display: none;
+        }
+        
+        .photo-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-preview {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(244, 67, 54, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        
+        .remove-preview:hover {
+            background-color: #f44336;
+            transform: scale(1.1);
+        }
+        
+        /* ==================== */
+        /* СТАТИСТИКА */
+        /* ==================== */
+        .stats {
+            padding: 15px 30px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            border-bottom: 1px solid #eee;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s ease-out 0.8s forwards;
+        }
+        
+        .stats span {
+            font-weight: 600;
+            color: #4776E6;
+        }
+        
+        /* ==================== */
+        /* СПИСОК ЗАДАЧ */
+        /* ==================== */
+        .tasks-section {
+            padding: 10px 0;
+            max-height: 500px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 0.9s forwards;
+        }
+        
+        .task-item {
+            padding: 20px 30px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .task-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .task-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            margin-top: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .task-checkbox:checked {
+            transform: scale(1.1);
+        }
+        
+        .task-text {
+            flex: 1;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            line-height: 1.5;
+        }
+        
+        .task-completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+        
+        .task-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn {
+            color: #4CAF50;
+        }
+        
+        .edit-btn:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            transform: rotate(15deg) scale(1.1);
+        }
+        
+        .delete-btn {
+            color: #f44336;
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(244, 67, 54, 0.1);
+            transform: rotate(15deg) scale(1.1);
+        }
+        
+        /* ==================== */
+        /* ФОТО В ЗАДАЧАХ */
+        /* ==================== */
+        .task-photos {
+            margin-top: 15px;
+            padding-left: 37px;
+        }
+        
+        .photos-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .task-photo-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .task-photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .task-photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-task-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(244, 67, 54, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+        
+        .task-photo-item:hover .remove-task-photo {
+            opacity: 1;
+        }
+        
+        .remove-task-photo:hover {
+            background-color: #f44336;
+            transform: scale(1.1);
+        }
+        
+        .photos-label {
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* ==================== */
+        /* СОСТОЯНИЕ ПУСТОГО СПИСКА */
+        /* ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 50px 30px;
+            color: #888;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 1s forwards;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+            animation: pulse 2s infinite;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+        
+        /* ==================== */
+        /* ПОДВАЛ */
+        /* ==================== */
+        footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 1.1s forwards;
+        }
+        
+        .instructions {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+        
+        /* ==================== */
+        /* МОДАЛЬНОЕ ОКНО */
+        /* ==================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+        }
+        
+        .modal-header {
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        .modal-content {
+            padding: 30px;
+        }
+        
+        /* ==================== */
+        /* ИНФОРМАЦИЯ О СОЗДАТЕЛЕ */
+        /* ==================== */
+        .creator-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            border: 5px solid #f0f0f0;
+            animation: avatarPulse 3s infinite;
+        }
+        
+        .creator-name {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .creator-fullname {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .creator-title {
+            font-size: 1.1rem;
+            color: #4776E6;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .creator-bio {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        /* ==================== */
+        /* КОНТАКТНАЯ ИНФОРМАЦИЯ */
+        /* ==================== */
+        .contact-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            transform: translateY(10px);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 0.3s forwards;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .contact-item:hover {
+            background-color: #f0f0f0;
+            transform: translateX(5px);
+        }
+        
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4776E6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .contact-details {
+            flex: 1;
+        }
+        
+        .contact-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 3px;
+        }
+        
+        .contact-value {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .copy-btn {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background-color: #4776E6;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* ==================== */
+        /* НАВЫКИ */
+        /* ==================== */
+        .skills {
+            margin-bottom: 25px;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 0.5s forwards;
+        }
+        
+        .skills h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .skill-tag {
+            background-color: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #555;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: popIn 0.4s ease-out forwards;
+        }
+        
+        .skill-tag.highlight {
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            color: white;
+        }
+        
+        .modal-footer {
+            padding: 20px 30px;
+            background-color: #f9f9f9;
+            border-radius: 0 0 15px 15px;
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 0.7s forwards;
+        }
+        
+        /* ==================== */
+        /* УВЕДОМЛЕНИЕ */
+        /* ==================== */
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+        }
+        
+        .copy-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* ==================== */
+        /* АДАПТИВНОСТЬ */
+        /* ==================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                animation: fadeInBody 0.8s ease-out forwards;
+            }
+            
+            .container {
+                border-radius: 10px;
+                animation: slideUpContainer 0.8s ease-out 0.3s forwards;
+            }
+            
+            header, .input-section, .stats, .task-item {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                animation: fadeInUp 0.6s ease-out 0.5s forwards;
+            }
+            
+            .creator-btn {
+                position: static;
+                margin: 15px auto 0;
+                width: auto;
+                display: inline-flex;
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+            
+            .creator-btn:hover {
+                transform: translateY(-2px);
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            #addBtn {
+                padding: 15px;
+                width: 100%;
+            }
+            
+            .task-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .task-photos {
+                padding-left: 0;
+            }
+            
+            .modal {
+                width: 95%;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .contact-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .contact-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== -->
+    <!-- ОСНОВНАЯ СТРУКТУРА -->
+    <!-- ==================== -->
+    <div class="container">
+        <header>
+            <button class="creator-btn" id="creatorBtn">
+                <i class="fas fa-user"></i>
+                <span>О создателе</span>
+            </button>
+            
+            <h1><i class="fas fa-tasks"></i> Мой список дел</h1>
+            <p class="subtitle">Добавляйте задачи, отмечайте выполненные и удаляйте ненужные</p>
+        </header>
+        
+        <div class="input-section">
+            <div class="input-row">
+                <input type="text" id="taskInput" placeholder="Введите новую задачу..." maxlength="100">
+                <button id="addBtn">Добавить задачу</button>
+            </div>
+            
+            <div class="photo-upload">
+                <label for="taskPhoto" class="photo-label">
+                    <i class="fas fa-camera"></i>
+                    <span>Прикрепить фото к задаче (до 5 файлов)</span>
+                </label>
+                <input type="file" id="taskPhoto" accept="image/*" multiple>
+                <div class="photo-preview" id="photoPreview"></div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div>Всего задач: <span id="totalTasks">0</span></div>
+            <div>Выполнено: <span id="completedTasks">0</span></div>
+            <div>Осталось: <span id="remainingTasks">0</span></div>
+            <div>С фото: <span id="tasksWithPhotos">0</span></div>
+        </div>
+        
+        <div class="tasks-section" id="tasksContainer">
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-clipboard-list"></i>
+                <p>Список дел пуст. Добавьте свою первую задачу!</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Мой список дел. Все задачи хранятся в вашем браузере.</p>
+            <div class="instructions">
+                <p>• Нажмите на задачу, чтобы отметить её выполненной</p>
+                <p>• Используйте кнопки справа для редактирования и удаления</p>
+                <p>• Вы можете прикреплять до 5 фото к каждой задаче</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==================== -->
+    <!-- МОДАЛЬНОЕ ОКНО -->
+    <!-- ==================== -->
+    <div class="modal-overlay" id="creatorModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-tie"></i> О создателе</h2>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-content">
+                <div class="creator-info">
+                    <div class="avatar">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h2 class="creator-name">Владислав Безносов</h2>
+                    <p class="creator-fullname">Безносов Владислав Денисович</p>
+                    <p class="creator-title">Начинающий программист</p>
+                    <p class="creator-bio">
+                        Привет! Меня зовут Владислав, и я начинающий программист. 
+                        Этот сайт-список дел - моя первая работа в веб-разработке. 
+                        Я только начинаю свой путь в IT и активно изучаю основы 
+                        программирования, HTML, CSS и JavaScript.
+                    </p>
+                </div>
+                
+                <div class="contact-info">
+                    <h3 style="margin-bottom: 20px; color: #333;">Контактная информация</h3>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-label">Электронная почта</div>
+                            <div class="contact-value">beznosov000@gmail.com</div>
+                        </div>
+                        <button class="copy-btn" data-text="beznosov000@gmail.com">
+                            <i class="fas fa-copy"></i> Копировать
+                        </button>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-label">Телефон</div>
+                            <div class="contact-value">8 (904) 113-46-65</div>
+                        </div>
+                        <button class="copy-btn" data-text="89041134665">
+                            <i class="fas fa-copy"></i> Копировать
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="skills">
+                    <h3>Изучаемые технологии</h3>
+                    <div class="skill-tags">
+                        <div class="skill-tag highlight">HTML5</div>
+                        <div class="skill-tag highlight">CSS3</div>
+                        <div class="skill-tag highlight">JavaScript</div>
+                        <div class="skill-tag">Веб-разработка</div>
+                        <div class="skill-tag">Git</div>
+                        <div class="skill-tag">Адаптивный дизайн</div>
+                    </div>
+                </div>
+                
+                <div class="creator-bio">
+                    <h3>О проекте</h3>
+                    <p>
+                        Этот сайт был создан как моя первая практическая работа в веб-разработке. 
+                        Здесь я применил полученные знания по HTML, CSS и JavaScript для создания 
+                        функционального списка задач с сохранением данных в браузере.
+                    </p>
+                    <p>
+                        В дальнейшем я планирую развивать свои навыки и создавать более сложные проекты, 
+                        изучать фреймворки и современные технологии веб-разработки.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <p>Буду рад сотрудничеству и новым предложениям!</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Уведомление о копировании -->
+    <div class="copy-notification" id="copyNotification">
+        Скопировано в буфер обмена!
+    </div>
+
+    <script>
+        // ==================== //
+        // КОНСТАНТЫ И ПЕРЕМЕННЫЕ //
+        // ==================== //
+        
+        // DOM элементы
+        const taskInput = document.getElementById('taskInput');
+        const addBtn = document.getElementById('addBtn');
+        const tasksContainer = document.getElementById('tasksContainer');
+        const emptyState = document.getElementById('emptyState');
+        const totalTasksEl = document.getElementById('totalTasks');
+        const completedTasksEl = document.getElementById('completedTasks');
+        const remainingTasksEl = document.getElementById('remainingTasks');
+        const tasksWithPhotosEl = document.getElementById('tasksWithPhotos');
+        const creatorBtn = document.getElementById('creatorBtn');
+        const creatorModal = document.getElementById('creatorModal');
+        const closeModal = document.getElementById('closeModal');
+        const copyNotification = document.getElementById('copyNotification');
+        const taskPhotoInput = document.getElementById('taskPhoto');
+        const photoPreview = document.getElementById('photoPreview');
+        
+        // Состояние приложения
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let firstModalOpen = true;
+        let selectedPhotos = [];
+        
+        // ==================== //
+        // ФУНКЦИИ ДЛЯ РАБОТЫ С ФОТО //
+        // ==================== //
+        
+        /**
+         * Обработчик выбора фото
+         */
+        function handlePhotoSelect(event) {
+            const files = Array.from(event.target.files);
+            
+            // Ограничение на количество фото
+            if (selectedPhotos.length + files.length > 5) {
+                alert('Максимальное количество фото - 5!');
+                return;
+            }
+            
+            // Обработка каждого файла
+            files.forEach(file => {
+                // Проверка типа файла
+                if (!file.type.startsWith('image/')) {
+                    alert(`Файл "${file.name}" не является изображением!`);
+                    return;
+                }
+                
+                // Проверка размера файла (максимум 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`Файл "${file.name}" слишком большой! Максимальный размер - 5MB.`);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const photoData = {
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        data: e.target.result
+                    };
+                    
+                    selectedPhotos.push(photoData);
+                    updatePhotoPreview();
+                };
+                
+                reader.readAsDataURL(file);
+            });
+            
+            // Сброс значения input, чтобы можно было выбрать те же файлы снова
+            event.target.value = '';
+        }
+        
+        /**
+         * Обновление превью фотографий
+         */
+        function updatePhotoPreview() {
+            photoPreview.innerHTML = '';
+            
+            if (selectedPhotos.length === 0) {
+                return;
+            }
+            
+            selectedPhotos.forEach((photo, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                
+                previewItem.innerHTML = `
+                    <img src="${photo.data}" alt="Превью ${photo.name}">
+                    <button class="remove-preview" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                photoPreview.appendChild(previewItem);
+            });
+            
+            // Добавление обработчиков удаления превью
+            document.querySelectorAll('.remove-preview').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removePhotoPreview(index);
+                });
+            });
+        }
+        
+        /**
+         * Удаление фото из превью
+         * @param {number} index - Индекс фото в массиве selectedPhotos
+         */
+        function removePhotoPreview(index) {
+            selectedPhotos.splice(index, 1);
+            updatePhotoPreview();
+        }
+        
+        /**
+         * Очистка выбранных фото
+         */
+        function clearSelectedPhotos() {
+            selectedPhotos = [];
+            updatePhotoPreview();
+        }
+        
+        /**
+         * Удаление фото из задачи
+         * @param {number} taskId - ID задачи
+         * @param {number} photoId - ID фото
+         */
+        function removeTaskPhoto(taskId, photoId) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex].photos = tasks[taskIndex].photos.filter(photo => photo.id !== photoId);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+        
+        // ==================== //
+        // ФУНКЦИИ ДЛЯ РАБОТЫ С ЗАДАЧАМИ //
+        // ==================== //
+        
+        /**
+         * Добавление новой задачи
+         */
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            
+            if (taskText === '') {
+                showInputError();
+                return;
+            }
+            
+            const newTask = {
+                id: Date.now(),
+                text: taskText,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                photos: [...selectedPhotos]
+            };
+            
+            tasks.push(newTask);
+            saveTasks();
+            
+            animateAddButton();
+            clearInput();
+            clearSelectedPhotos();
+            
+            renderTasks();
+            updateStats();
+            
+            taskInput.focus();
+        }
+        
+        /**
+         * Показать ошибку при пустом вводе
+         */
+        function showInputError() {
+            taskInput.style.borderColor = '#f44336';
+            taskInput.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                taskInput.style.borderColor = '#e0e0e0';
+                taskInput.style.transform = 'scale(1)';
+            }, 300);
+        }
+        
+        /**
+         * Анимация кнопки добавления
+         */
+        function animateAddButton() {
+            addBtn.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                addBtn.style.transform = 'scale(1)';
+            }, 150);
+        }
+        
+        /**
+         * Очистка поля ввода
+         */
+        function clearInput() {
+            taskInput.value = '';
+        }
+        
+        /**
+         * Переключение статуса выполнения задачи
+         * @param {number} taskId - ID задачи
+         */
+        function toggleTaskCompletion(taskId) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+        
+        /**
+         * Редактирование задачи
+         * @param {number} taskId - ID задачи
+         * @param {HTMLElement} taskTextElement - Элемент с текстом задачи
+         */
+        function editTask(taskId, taskTextElement) {
+            const currentText = taskTextElement.textContent;
+            const newText = prompt('Редактировать задачу:', currentText);
+            
+            if (newText !== null && newText.trim() !== '') {
+                const taskIndex = tasks.findIndex(task => task.id === taskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex].text = newText.trim();
+                    saveTasks();
+                    renderTasks();
+                }
+            }
+        }
+        
+        /**
+         * Удаление задачи
+         * @param {number} taskId - ID задачи
+         */
+        function deleteTask(taskId) {
+            if (confirm('Вы уверены, что хотите удалить эту задачу?')) {
+                animateTaskDeletion(taskId);
+                
+                setTimeout(() => {
+                    tasks = tasks.filter(task => task.id !== taskId);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                }, 300);
+            }
+        }
+        
+        /**
+         * Анимация удаления задачи
+         * @param {number} taskId - ID задачи
+         */
+        function animateTaskDeletion(taskId) {
+            const taskElement = document.querySelector(`[data-id="${taskId}"]`);
+            if (taskElement) {
+                taskElement.style.transform = 'translateX(100px)';
+                taskElement.style.opacity = '0';
+            }
+        }
+        
+        // ==================== //
+        // ФУНКЦИИ ОТОБРАЖЕНИЯ //
+        // ==================== //
+        
+        /**
+         * Отображение всех задач
+         */
+        function renderTasks() {
+            tasksContainer.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            hideEmptyState();
+            
+            const sortedTasks = sortTasks();
+            displayTasks(sortedTasks);
+        }
+        
+        /**
+         * Показать состояние пустого списка
+         */
+        function showEmptyState() {
+            tasksContainer.appendChild(emptyState);
+            emptyState.style.display = 'block';
+            emptyState.style.animation = 'fadeIn 0.6s ease-out forwards';
+        }
+        
+        /**
+         * Скрыть состояние пустого списка
+         */
+        function hideEmptyState() {
+            emptyState.style.display = 'none';
+        }
+        
+        /**
+         * Сортировка задач
+         * @returns {Array} Отсортированный массив задач
+         */
+        function sortTasks() {
+            return [...tasks].sort((a, b) => {
+                if (a.completed && !b.completed) return 1;
+                if (!a.completed && b.completed) return -1;
+                return 0;
+            });
+        }
+        
+        /**
+         * Отображение задач в контейнере
+         * @param {Array} sortedTasks - Отсортированный массив задач
+         */
+        function displayTasks(sortedTasks) {
+            sortedTasks.forEach((task, index) => {
+                const taskElement = createTaskElement(task);
+                taskElement.style.animationDelay = `${index * 0.05}s`;
+                tasksContainer.appendChild(taskElement);
+            });
+        }
+        
+        /**
+         * Создание элемента задачи
+         * @param {Object} task - Объект задачи
+         * @returns {HTMLElement} Элемент задачи
+         */
+        function createTaskElement(task) {
+            const taskItem = document.createElement('div');
+            taskItem.className = `task-item ${task.completed ? 'task-completed' : ''}`;
+            taskItem.setAttribute('data-id', task.id);
+            taskItem.style.opacity = '0';
+            taskItem.style.animation = 'fadeIn 0.3s ease-out forwards';
+            
+            // Основное содержимое задачи
+            taskItem.innerHTML = `
+                <div class="task-content">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                    <div class="task-text">${escapeHtml(task.text)}</div>
+                    <div class="task-actions">
+                        <button class="task-btn edit-btn" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="task-btn delete-btn" title="Удалить">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Добавление фотографий, если они есть
+            if (task.photos && task.photos.length > 0) {
+                const photosContainer = document.createElement('div');
+                photosContainer.className = 'task-photos';
+                
+                photosContainer.innerHTML = `
+                    <div class="photos-label">
+                        <i class="fas fa-images"></i>
+                        <span>Прикреплённые фото (${task.photos.length}):</span>
+                    </div>
+                    <div class="photos-container" id="photos-${task.id}"></div>
+                `;
+                
+                taskItem.appendChild(photosContainer);
+                
+                // Добавление фотографий в контейнер
+                const photosInnerContainer = taskItem.querySelector(`#photos-${task.id}`);
+                task.photos.forEach(photo => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'task-photo-item';
+                    
+                    photoItem.innerHTML = `
+                        <img src="${photo.data}" alt="${photo.name}">
+                        <button class="remove-task-photo" data-task-id="${task.id}" data-photo-id="${photo.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    photosInnerContainer.appendChild(photoItem);
+                });
+            }
+            
+            addTaskEventListeners(taskItem, task.id);
+            
+            return taskItem;
+        }
+        
+        /**
+         * Добавление обработчиков событий к элементу задачи
+         * @param {HTMLElement} taskItem - Элемент задачи
+         * @param {number} taskId - ID задачи
+         */
+        function addTaskEventListeners(taskItem, taskId) {
+            const checkbox = taskItem.querySelector('.task-checkbox');
+            const editBtn = taskItem.querySelector('.edit-btn');
+            const deleteBtn = taskItem.querySelector('.delete-btn');
+            const taskText = taskItem.querySelector('.task-text');
+            
+            checkbox.addEventListener('change', () => toggleTaskCompletion(taskId));
+            editBtn.addEventListener('click', () => editTask(taskId, taskText));
+            deleteBtn.addEventListener('click', () => deleteTask(taskId));
+            
+            // Обработчики для удаления фото из задачи
+            const removePhotoButtons = taskItem.querySelectorAll('.remove-task-photo');
+            removePhotoButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const photoId = parseInt(this.getAttribute('data-photo-id'));
+                    removeTaskPhoto(taskId, photoId);
+                });
+            });
+        }
+        
+        /**
+         * Обновление статистики
+         */
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(task => task.completed).length;
+            const remaining = total - completed;
+            const withPhotos = tasks.filter(task => task.photos && task.photos.length > 0).length;
+            
+            totalTasksEl.textContent = total;
+            completedTasksEl.textContent = completed;
+            remainingTasksEl.textContent = remaining;
+            tasksWithPhotosEl.textContent = withPhotos;
+            
+            animateStatsUpdate();
+        }
+        
+        /**
+         * Анимация обновления статистики
+         */
+        function animateStatsUpdate() {
+            [totalTasksEl, completedTasksEl, remainingTasksEl, tasksWithPhotosEl].forEach(el => {
+                el.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    el.style.transform = 'scale(1)';
+                }, 150);
+            });
+        }
+        
+        // ==================== //
+        // РАБОТА С LOCALSTORAGE //
+        // ==================== //
+        
+        /**
+         * Сохранение задач в localStorage
+         */
+        function saveTasks() {
+            // Ограничиваем размер данных для localStorage
+            const tasksString = JSON.stringify(tasks);
+            if (tasksString.length > 5000000) { // 5MB
+                alert('Внимание: данные занимают слишком много места. Удалите некоторые фото.');
+                return;
+            }
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // ==================== //
+        // ФУНКЦИИ МОДАЛЬНОГО ОКНА //
+        // ==================== //
+        
+        /**
+         * Открытие модального окна
+         */
+        function openModal() {
+            creatorModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            if (firstModalOpen) {
+                animateSkills();
+                firstModalOpen = false;
+            }
+        }
+        
+        /**
+         * Закрытие модального окна
+         */
+        function closeModalWindow() {
+            creatorModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        /**
+         * Анимация навыков в модальном окне
+         */
+        function animateSkills() {
+            const skillTags = document.querySelectorAll('.skill-tag');
+            skillTags.forEach((tag, index) => {
+                tag.style.animationDelay = `${index * 0.1}s`;
+                tag.style.animation = 'popIn 0.4s ease-out forwards';
+            });
+        }
+        
+        // ==================== //
+        // ФУНКЦИИ КОПИРОВАНИЯ //
+        // ==================== //
+        
+        /**
+         * Копирование текста в буфер обмена
+         * @param {string} text - Текст для копирования
+         */
+        function copyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+        
+        /**
+         * Обработчик копирования контакта
+         * @param {HTMLElement} button - Нажатая кнопка
+         */
+        function handleCopyContact(button) {
+            const textToCopy = button.getAttribute('data-text');
+            copyToClipboard(textToCopy);
+            
+            animateCopyButton(button);
+            showCopyNotification();
+        }
+        
+        /**
+         * Анимация кнопки копирования
+         * @param {HTMLElement} button - Кнопка копирования
+         */
+        function animateCopyButton(button) {
+            button.style.backgroundColor = '#4CAF50';
+            button.style.color = 'white';
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+            
+            setTimeout(() => {
+                button.style.backgroundColor = '';
+                button.style.color = '';
+                button.innerHTML = originalHTML;
+            }, 1500);
+        }
+        
+        /**
+         * Показать уведомление о копировании
+         */
+        function showCopyNotification() {
+            copyNotification.classList.add('show');
+            setTimeout(() => {
+                copyNotification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // ==================== //
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ //
+        // ==================== //
+        
+        /**
+         * Экранирование HTML для безопасности
+         * @param {string} text - Текст для экранирования
+         * @returns {string} Экранированный текст
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        /**
+         * Инициализация анимации при загрузке
+         */
+        function initializeAnimations() {
+            setTimeout(() => {
+                renderTasks();
+                updateStats();
+            }, 1200);
+            
+            setTimeout(() => {
+                taskInput.focus();
+                taskInput.style.transform = 'scale(1)';
+                addBtn.style.transform = 'scale(1)';
+            }, 1000);
+        }
+        
+        // ==================== //
+        // ИНИЦИАЛИЗАЦИЯ //
+        // ==================== //
+        
+        /**
+         * Инициализация приложения
+         */
+        function initializeApp() {
+            // Инициализация анимаций
+            initializeAnimations();
+            
+            // Обработчики для добавления задач
+            addBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+            
+            // Обработчик для выбора фото
+            taskPhotoInput.addEventListener('change', handlePhotoSelect);
+            
+            // Обработчики модального окна
+            creatorBtn.addEventListener('click', openModal);
+            closeModal.addEventListener('click', closeModalWindow);
+            
+            creatorModal.addEventListener('click', (e) => {
+                if (e.target === creatorModal) closeModalWindow();
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && creatorModal.classList.contains('active')) {
+                    closeModalWindow();
+                }
+            });
+            
+            // Обработчики копирования контактов
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', () => handleCopyContact(button));
+            });
+        }
+        
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
